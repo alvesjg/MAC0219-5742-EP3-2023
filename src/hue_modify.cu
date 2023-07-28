@@ -1,3 +1,11 @@
+/* 
+EP3 - MAC0219
+João Gabriel Andrade de Araujo (12542265)
+João Guilherme Alves Santos (11819560) 
+*/
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
