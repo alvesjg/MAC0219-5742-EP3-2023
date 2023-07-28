@@ -112,7 +112,7 @@ void modify_hue(png_bytep h_image,
     // sao uma "dica" do que deve ser feito em cada chamada a funcoes CUDA
     double *d_A;
     
-    cudaMalloc(&d_A,9 * sizeof(double));
+    cudaMalloc((void**)&d_A ,9 * sizeof(double));
     checkErrors(cudaGetLastError(), "Alocacao da matriz A no device");
 
     cudaMemcpy(d_A, A, 9 * sizeof(double), cudaMemcpyHostToDevice);
@@ -131,11 +131,11 @@ void modify_hue(png_bytep h_image,
     dim3 blockDim(16, 16);
     dim3 gridDim((width + blockDim.x - 1) / blockDim.x, (height + blockDim.y - 1) / blockDim.y);
 
-    modify_hue_kernel<<<dim_grid, dim_block>>>
+    modify_hue_kernel<<<gridDim, blockDim>>>
         (d_image,width,height,d_A);
     checkErrors(cudaGetLastError(), "Lançamento do kernel");
 
-    cudaMemcpy(h_image, d_image, image_size, cudaMemcpyHostToDevice);
+    cudaMemcpy(h_image, d_image, image_size, cudaMemcpyDeviceToHost);
     checkErrors(cudaGetLastError(), "Copia da imagem para o host");
 
     cudaFree(d_A);
@@ -305,10 +305,10 @@ int main(int argc, char *argv[]) {
     // Processamento da imagem (alteracao do hue)
 
     // Versao sequencial:
-    modify_hue_seq(image, width, height, hue_diff);
+    // modify_hue_seq(image, width, height, hue_diff);
 
     // // Versao paralela
-    // modify_hue(image, width, height, image_size, hue_diff);
+    modify_hue(image, width, height, image_size, hue_diff);
 
     // Escrita da imagem para arquivo
     write_png_image(argv[2], image, width, height);
